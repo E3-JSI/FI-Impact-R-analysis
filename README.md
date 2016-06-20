@@ -8,3 +8,4 @@
 - Data imports: import.R
 - Connectivity (project partners) computations: partners/partners.R
 - Correlations computations: correlations.R
+- Functions: utility.R
