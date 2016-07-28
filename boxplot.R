@@ -2,13 +2,13 @@
 # Functions
 # --------------------
 
+# Save boxplots for given scores and categories
 save.boxplots <- function(db, scores, categories) {
   for (score in scores) for (category in categories) {
     dt = get.pair.df(score, category)
     colnames(dt) <- c('score', 'category')
     jpeg(file = paste("boxplots/", category, "-", score, ".jpg", sep = ""))
     if (category %in% features.keyword('binary')) {
-      # TODO double check
       par(mar = c(4, 4, 4, 4))
       boxplot(score ~ category, data = dt, main = paste(get.label(category), '-', get.label(score)), notch=TRUE)
     }
@@ -19,7 +19,7 @@ save.boxplots <- function(db, scores, categories) {
     dev.off()
   }
 }
-
+# Save boxplot sample sizes for given scores and categories
 save.boxplot.sample.sizes <- function(db, scores, categories) {
   for (category in categories) {
     parts = split(db[c(category, scores)], db[category])

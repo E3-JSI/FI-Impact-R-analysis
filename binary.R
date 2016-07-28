@@ -18,20 +18,21 @@
 get.legend <- function(cutoff, n) { paste("top ", round(cutoff*100), "% (", n, ")", sep = "") }
 get.category.label <- function(label, n, percent) { paste(label, " (", n, "; ", percent, "%)", sep = "") }
 
+# Return order of category (0 or 1)
 fi.practice.order <- function(category, index) {
   if (index == 1) if (category == "i10") "FUNNEL" else "x"
   else if (category == "i10") "PIPELINE" else "0"
 }
-
+# Compute practice score
 fi.practice.score <- function(db, score, category, lower, upper) {
   dt = fi.data(db, score, category, lower, upper)
-  max_score = if (upper > 0) dt$max_score else get.max.score(dt$data[score])
+  max.score = if (upper > 0) dt$max.score else get.max.score(dt$data[score])
   first = fi.practice.order(category, 1)
   second = fi.practice.order(category, 2)
   if (dt$parts[[first]]$n * dt$parts[[second]]$n == 0) return(FALSE)
-  score = integrate(function(x) ecdf(dt$parts[[first]]$data[,1])(x), dt$min_score, max_score, subdivisions=2000)[[1]]
-  score = score - integrate(function(x) ecdf(dt$parts[[second]]$data[,1])(x), dt$min_score, max_score, subdivisions=2000)[[1]]
-  normalization = -1 / (max_score-dt$min_score)
+  score = integrate(function(x) ecdf(dt$parts[[first]]$data[,1])(x), dt$min.score, max.score, subdivisions=2000)[[1]]
+  score = score - integrate(function(x) ecdf(dt$parts[[second]]$data[,1])(x), dt$min.score, max.score, subdivisions=2000)[[1]]
+  normalization = -1 / (max.score-dt$min.score)
   # -1 fixes the direction of integration from max to min
   list(
     'score' = normalization * score,
@@ -48,13 +49,13 @@ fi.practice.score <- function(db, score, category, lower, upper) {
 fi.ecdf.plot <- function(db, score, category, lower, upper) {
   dt = fi.data(db, score, category, lower, upper)
   colorcode = c("red", "blue")
-  legend_array = c(get.legend(lower, dt$rows))
+  legend.array = c(get.legend(lower, dt$rows))
   png(file = paste("cdf/", score, "-", category, ".png", sep=""),
       bg = "transparent", width = 500, height = 500, units = "px", pointsize = 10)
   plot(
     modified.ecdf(dt$data[score]),
     main = "",
-    xlim = c(-1*dt$max_score, -1*dt$min_score), ylim = c(0, 1),
+    xlim = c(-1*dt$max.score, -1*dt$min.score), ylim = c(0, 1),
     xlab = "Score", ylab = "Comulative density", pch = ".",
     xaxt = "n"
   )
@@ -68,9 +69,9 @@ fi.ecdf.plot <- function(db, score, category, lower, upper) {
     partial = dt$parts[[fi.practice.order(category, index)]]
     lines(modified.ecdf(partial$data[score]), col = colorcode[clr], lwd = 2.5, pch = ".")
     clr = clr+1
-    legend_array = c(legend_array, get.category.label(partial$label, partial$n, round(100*partial$n/partial$all)))
+    legend.array = c(legend.array, get.category.label(partial$label, partial$n, round(100*partial$n/partial$all)))
   }
-  legend(-1*dt$max_score, 1, bty = "n", legend_array, y.intersp = 1.3,
+  legend(-1*dt$max.score, 1, bty = "n", legend.array, y.intersp = 1.3,
          lty = c(1, 1, 1),
          lwd = c(1, 2.5, 2.5),
          col = c("black", colorcode))
@@ -82,7 +83,7 @@ fi.density.plot <- function(db, score, lower, upper) {
   plot(
     modified.density(dt$data),
     main = "",
-    xlim = c(dt$min_score, dt$max_score), ylim = c(0, 0.5),
+    xlim = c(dt$min.score, dt$max.score), ylim = c(0, 0.5),
     xlab = "Score", ylab = "Density", pch = ".",
     xaxt = "n"
   )
@@ -103,18 +104,18 @@ get.practice.scores.list <- function(scores, practices, lower, upper) {
       t = fi.practice.score(db, s, p, lower, upper)
       r = fi.practice.score(db, s, p, 1, 0)
       if (length(t) > 1 && length(r) > 1) {
-        new_row = list(
+        new.row = list(
           "practice" = pretty(p),
           "score" = pretty(s),
-          "practice_score_top" = round(t$score, 2),
-          "practice_score_all" = round(r$score, 2),
-          "n_top" = t$n,
-          "n_all" = r$n,
-          "c1_top" = t$n1,
-          "c1_all" = r$n1,
-          "c2_top" = t$n2,
-          "c2_all" = r$n2)
-        ps <- rbind(ps, do.call(data.frame, new_row))
+          "practice.score.top" = round(t$score, 2),
+          "practice.score.all" = round(r$score, 2),
+          "n.top" = t$n,
+          "n.all" = r$n,
+          "c1.top" = t$n1,
+          "c1.all" = r$n1,
+          "c2.top" = t$n2,
+          "c2.all" = r$n2)
+        ps <- rbind(ps, do.call(data.frame, new.row))
       }
     }
   }
@@ -123,14 +124,14 @@ get.practice.scores.list <- function(scores, practices, lower, upper) {
 # Generate comparison matrix for practice scores
 # Uses external variable db
 get.practice.score.matrix <- function(scores, practices, lower, upper) {
-  practice_scores = c()
+  practice.scores = c()
   for (s in scores) {
     for (p in practices) {
       t = fi.practice.score(db, s, p, lower, upper)
-      practice_scores = c(practice_scores, if (length(t) > 1) as.numeric(t$score) else NA)
+      practice.scores = c(practice.scores, if (length(t) > 1) as.numeric(t$score) else NA)
     }
   }
-  df = matrix(practice_scores, length(practices), length(scores))
+  df = matrix(practice.scores, length(practices), length(scores))
   colnames(df) <- scores
   rownames(df) <- practices
   df

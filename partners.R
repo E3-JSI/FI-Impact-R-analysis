@@ -12,6 +12,7 @@ partners <- merge(partnersData, partnersNodes, all.x = TRUE)
 # Functions
 # --------------------
 
+# Prepare list of edges based on the data
 get.edges <- function(partners) {
   partnerSplit <- split(partners, partners$partner)
   partnersEdges = data.frame(Source = integer(), Target = integer(), Label = character())
@@ -34,6 +35,7 @@ get.edges <- function(partners) {
   partnersEdges
 }
 
+# Compute degrees of connectivity
 get.connectivity <- function(partnersEdges) {
   acceleratorConnectivity = data.frame(Id = integer(), Phase1 = integer(), Phase2 = integer(), Phase3 = integer(), Phase1and2 = integer(), Phase1or2 = integer(), PhaseAll = integer())
   acceleratorsEdges = partnersEdges[which(partnersEdges['Phase Source'] == 3),]

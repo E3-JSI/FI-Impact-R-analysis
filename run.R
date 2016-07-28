@@ -5,7 +5,7 @@ library(data.table)
 source("utility.R") # Functions
 
 source("import.R") # Import data and merge
-source("partners.R") # Compute connectivity
+source("partners.R") # Import additional data, compute connectivity
 
 # List of 'scores' used for the analysis
 scores = c(features.keywords.intersect(c('benchmark', 'normalized')), features.keywords.intersect(c('benchmark', 'log')))

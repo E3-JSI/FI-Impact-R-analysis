@@ -148,12 +148,12 @@ fi.data <- function(db, score, category, lower, upper) {
     else db[complete.cases(db[, c(score, category)]), c(score, category)]
   )
   r = list(
-    'max_score' = get.cutoff(dt[score], upper),
-    'min_score' = get.cutoff(dt[score], lower),
+    'max.score' = get.cutoff(dt[score], upper),
+    'min.score' = get.cutoff(dt[score], lower),
     'n' = nrow(dt))
-  r$data = dt[which(dt[score] >= r$min_score & dt[score] <= r$max_score), colnames(dt), drop = FALSE]
+  r$data = dt[which(dt[score] >= r$min.score & dt[score] <= r$max.score), colnames(dt), drop = FALSE]
   r$rows = nrow(r$data)
-  r$ticks = c(round.out(r$min_score):round.out(r$max_score))
+  r$ticks = c(round.out(r$min.score):round.out(r$max.score))
   r$labels = if (is.log(score)) round(exp(r$ticks)) else r$ticks
   # split along the category
   if (category != "") {

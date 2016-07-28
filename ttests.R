@@ -3,7 +3,8 @@
 # --------------------
 # This script uses a few functions from binary.R
 
-get_dichotomous_ttest <- function(dt, s, p, percent) {
+# Compute t-test for a binary practice
+get.dichotomous.ttest <- function(dt, s, p, percent) {
   ok.sizes = TRUE #
   for (name in names(dt$parts)) ok.sizes = ok.sizes && (dt$parts[[name]]$n > 20)
   if (ok.sizes) {
@@ -24,8 +25,8 @@ get_dichotomous_ttest <- function(dt, s, p, percent) {
   }
   return(FALSE)
 }
-
-get_ttests <- function(scores, practices) {
+# Compute t-tests for given scores and practices
+get.ttests <- function(scores, practices) {
   cols = c('t', 'df', 'p.value')
   results <- data.frame()
   for (s in scores) {
@@ -33,7 +34,7 @@ get_ttests <- function(scores, practices) {
       for (percent in c(1, 0.5, 0.4, 0.3, 0.2, 0.1)) {
         dt = fi.data(db, s, p, percent, 0)
         ttest = FALSE
-        if (length(dt$parts) == 2) ttest = get_dichotomous_ttest(dt, s, p, percent)
+        if (length(dt$parts) == 2) ttest = get.dichotomous.ttest(dt, s, p, percent)
         if (length(ttest) > 1) results <- rbind(results, do.call(data.frame, ttest))
       }
     }
@@ -50,6 +51,6 @@ get_ttests <- function(scores, practices) {
 # Computations
 # --------------------
 
-tt = get_ttests(scores, benchmark.binary)
+tt = get.ttests(scores, benchmark.binary)
 tt = merge(tt, practice.scores.list, all.x = TRUE, by = c('practice', 'score'))
 write.csv(tt, file = 'output/tt.csv')

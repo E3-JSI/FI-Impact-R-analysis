@@ -2,8 +2,8 @@
 # Functions
 # --------------------
 
+# Compute correlations
 get.correlations <- function(cols, rows, lower, upper) {
-  # TODO compare final corr tables for top 30%
   m = length(rows)
   n = length(cols)
   a = matrix(rep(NA, m*n), nrow = m, ncol = n)
@@ -18,9 +18,9 @@ get.correlations <- function(cols, rows, lower, upper) {
       # the interval is used for the first column in the pair
       if (pair[1] %in% benchmark.numeric || pair[2] %in% benchmark.numeric) {
         scoreColumn = if (pair[1] %in% benchmark.numeric) dt[pair[1]] else dt[pair[2]]
-        max_score = get.cutoff(scoreColumn, upper)
-        min_score = get.cutoff(scoreColumn, lower)
-        dt = dt[which(scoreColumn >= min_score & scoreColumn <= max_score), pair]
+        max.score = get.cutoff(scoreColumn, upper)
+        min.score = get.cutoff(scoreColumn, lower)
+        dt = dt[which(scoreColumn >= min.score & scoreColumn <= max.score), pair]
       }
       else {
         fail = TRUE
@@ -44,12 +44,12 @@ get.correlations <- function(cols, rows, lower, upper) {
 # all subgrantees (pairwise complete)
 correlation = get.correlations(benchmark.numeric, benchmark.numeric, 1, 0)
 write.csv(correlation, file = "output/correlation.csv")
-correlation_n = count.pairwise(db[, benchmark.numeric])
-colnames(correlation_n) = get.labels(benchmark.numeric)
-rownames(correlation_n) = get.labels(benchmark.numeric)
-write.csv(correlation_n, file = "output/correlation-samples.csv")
+correlation.n = count.pairwise(db[, benchmark.numeric])
+colnames(correlation.n) = get.labels(benchmark.numeric)
+rownames(correlation.n) = get.labels(benchmark.numeric)
+write.csv(correlation.n, file = "output/correlation-samples.csv")
 # top 30% subgrantees for indicators (pairwise complete)
-correlation_indicators = get.correlations(scores, benchmark.numeric, 0.3, 0)
+correlation.indicators = get.correlations(scores, benchmark.numeric, 0.3, 0)
 
 png(file = "output/correlation.png",
     bg = "transparent", width = 1000, height = 700, units = "px", pointsize = 10)
@@ -64,7 +64,7 @@ dev.off()
 
 png(file = "output/correlationTop.png",
     bg = "transparent", width = 500, height = 500, units = "px", pointsize = 10)
-heat <- melt(correlation_indicators, id.var = "X1")
+heat <- melt(correlation.indicators, id.var = "X1")
 ggplot(heat, aes(as.factor(X1), X2, group=X2), notecex=0.075) +
   geom_tile(aes(fill = value)) + 
   geom_text(aes(fill = heat$value, label = heat$value)) +
