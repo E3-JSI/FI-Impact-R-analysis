@@ -1,21 +1,57 @@
+# --------------------
+# Functions
+# --------------------
+
+get_correlations <- function(cols, rows, lower, upper) {
+  # TODO compare final corr tables for top 30%
+  m = length(rows)
+  n = length(cols)
+  a = matrix(rep(NA, m*n), nrow = m, ncol = n)
+  for (i in c(1:m)) for (j in c(1:n)) {
+    pair = c(rows[i], cols[j])
+    dt = maybe.log.transform(db[complete.cases(db[, pair]), pair])
+    if (nrow(dt) < 10) return(a)
+    fail = FALSE
+    corr = NA
+    if (lower != 1 || upper != 0) {
+      # if none of the columns are scores and interval is not everything, the computation fails
+      # the interval is used for the first column in the pair
+      if (pair[1] %in% benchmark.numeric || pair[2] %in% benchmark.numeric) {
+        scoreColumn = if (pair[1] %in% benchmark.numeric) dt[pair[1]] else dt[pair[2]]
+        max_score = get.cutoff(scoreColumn, upper)
+        min_score = get.cutoff(scoreColumn, lower)
+        dt = dt[which(scoreColumn >= min_score & scoreColumn <= max_score), pair]
+      }
+      else {
+        fail = TRUE
+      }
+    }
+    # compute correlation if interval and columns ok
+    if (!fail) {
+      corr = cor.test(dt[, c(pair[1])], dt[, c(pair[2])], method = "spearman", exact=FALSE)
+      if (!is.na(corr$p.value) && corr$p.value <= 0.05) a[i,j] = corr$estimate
+    }
+  }
+  colnames(a) = get.labels(cols)
+  rownames(a) = get.labels(rows)
+  round(a, 2)
+}
+
+# --------------------
+# Computations
+# --------------------
+
 # all subgrantees (pairwise complete)
-correlation_columns = c(scores_list('benchmark'), indicators_list('numeric'))
-correlation_names = c(as.character(scores[which(scores$Score %in% scores_list('benchmark')), c('Label')]), as.character(indicators[which(indicators$Id %in% indicators_list('numeric')), c('Label')]))
-correlation <- round(cor(db[, correlation_columns], use="pairwise.complete.obs", method = "spearman"), 2)
-colnames(correlation) = correlation_names
-rownames(correlation) = correlation_names
+correlation = get_correlations(benchmark.numeric, benchmark.numeric, 1, 0)
 write.csv(correlation, file = "output/correlation.csv")
-correlation_n = count_pairwise(db[, correlation_columns])
-colnames(correlation_n) = correlation_names
-rownames(correlation_n) = correlation_names
+correlation_n = count.pairwise(db[, benchmark.numeric])
+colnames(correlation_n) = get.labels(benchmark.numeric)
+rownames(correlation_n) = get.labels(benchmark.numeric)
 write.csv(correlation_n, file = "output/correlation-samples.csv")
-
 # top 30% subgrantees for indicators (pairwise complete)
-correlation_indicators = get_indicator_correlations(db, scores_list('benchmark'), indicators_list('numeric'), 0.3, 0)
-rownames(correlation_indicators) = indicators[which(indicators$Id %in% indicators_list('numeric')), c("Label")]
-colnames(correlation_indicators) = scores[which(scores$Score %in% scores_list('benchmark')), c("Label")]
+correlation_indicators = get_correlations(scores, benchmark.numeric, 0.3, 0)
 
-png(file = paste("output/", "correlation", ".png", sep = ""),
+png(file = "output/correlation.png",
     bg = "transparent", width = 1000, height = 700, units = "px", pointsize = 10)
 heat <- melt(correlation, id.var = "X1")
 ggplot(heat, aes(as.factor(X1), X2, group=X2), notecex=0.075) +
@@ -26,8 +62,8 @@ ggplot(heat, aes(as.factor(X1), X2, group=X2), notecex=0.075) +
   xlab("") + ylab("")
 dev.off()
 
-png(file = paste("output/", "correlationTop", ".png", sep = ""),
-    bg = "transparent", width = 700, height = 350, units = "px", pointsize = 10)
+png(file = "output/correlationTop.png",
+    bg = "transparent", width = 500, height = 500, units = "px", pointsize = 10)
 heat <- melt(correlation_indicators, id.var = "X1")
 ggplot(heat, aes(as.factor(X1), X2, group=X2), notecex=0.075) +
   geom_tile(aes(fill = value)) + 
@@ -36,5 +72,3 @@ ggplot(heat, aes(as.factor(X1), X2, group=X2), notecex=0.075) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   xlab("") + ylab("")
 dev.off()
-
-remove(heat)

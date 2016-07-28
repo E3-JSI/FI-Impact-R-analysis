@@ -1,0 +1,8 @@
+correlations: correlation.png
+
+2.5.3.1: histograms
+2.5.3.2: boxplots, output (boxplot csv)
+2.5.3.3: output (correlationsTop.png, correlations.csv, correlations-samples.csv)
+2.5.3.4: cdf, output (tt.csv)
+
+2.5.4: output (partnersEdges.csv, acceleratorConnectivity.csv, ) 
