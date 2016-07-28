@@ -1,13 +1,14 @@
 # --------------------
 # Functions
 # --------------------
+# This script uses a few functions from binary.R
 
 get_dichotomous_ttest <- function(dt, s, p, percent) {
   ok.sizes = TRUE #
   for (name in names(dt$parts)) ok.sizes = ok.sizes && (dt$parts[[name]]$n > 20)
   if (ok.sizes) {
-    first = fi_practice_order(p, 1)
-    second = fi_practice_order(p, 2)
+    first = fi.practice.order(p, 1)
+    second = fi.practice.order(p, 2)
     r = t.test(dt$parts[[first]]$data[s], dt$parts[[second]]$data[s])
     if (r$p.value < 0.05) {
       ttest = list(

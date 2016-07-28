@@ -73,6 +73,7 @@ pretty <- function(x) {
 # - count.range
 # - get.max.score
 # Split and subset dataframe along category and bounds
+# - fi.category.split
 # - fi.data
 
 # Returns a complete sub data drame with given two columns
@@ -121,6 +122,24 @@ get.max.score <- function(x) {
   if (is.log(colnames(x)[1])) max.na(x)
   else 5
 }
+# Prepare data for fi.data
+fi.category.split <- function(dt, category) {
+  s = split(dt, dt[category])
+  parts = list()
+  for (index in names(s)) {
+    obj = list(
+      'label' = index,
+      'data' = s[[index]],
+      'n' = nrow(s[[index]])
+    )
+    if (index == "x") obj$label = "Yes"
+    if (index == "0") obj$label = "No"
+    new = list(obj)
+    names(new) = list(index)
+    parts = c(parts, new)
+  }
+  parts
+}
 # Split and subset dataframe along category and bounds
 # Needs a numeric column as score and a binary feature as category
 fi.data <- function(db, score, category, lower, upper) {
@@ -138,8 +157,8 @@ fi.data <- function(db, score, category, lower, upper) {
   r$labels = if (is.log(score)) round(exp(r$ticks)) else r$ticks
   # split along the category
   if (category != "") {
-    s = fi_category_split(dt, category)
-    r$parts = fi_category_split(r$data, category)
+    s = fi.category.split(dt, category)
+    r$parts = fi.category.split(r$data, category)
     for (index in names(r$parts)) { r$parts[[index]]$all = s[[index]]$n }
   }
   return(r)

@@ -17,5 +17,4 @@ source("binary.R") # Compute practice scores
 source("correlations.R") # Compute ordinal practice and score correlations
 source("boxplot.R") # Boxplots
 source("overview.R") # Overview
-source('cdf.R') # Compute practice scores for binary indicators
 source('ttests.R') # Compute t-tests

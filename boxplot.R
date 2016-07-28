@@ -2,7 +2,7 @@
 # Functions
 # --------------------
 
-save_boxplots <- function(db, scores, categories) {
+save.boxplots <- function(db, scores, categories) {
   for (score in scores) for (category in categories) {
     dt = get.pair.df(score, category)
     colnames(dt) <- c('score', 'category')
@@ -20,7 +20,7 @@ save_boxplots <- function(db, scores, categories) {
   }
 }
 
-save_boxplot_sample_sizes <- function(db, scores, categories) {
+save.boxplot.sample.sizes <- function(db, scores, categories) {
   for (category in categories) {
     parts = split(db[c(category, scores)], db[category])
     options = names(parts)
@@ -39,5 +39,5 @@ save_boxplot_sample_sizes <- function(db, scores, categories) {
 # --------------------
 
 boxplots = c('Accelerator', features.keyword('category'), features.keyword('binary'))
-save_boxplots(db, benchmark.numeric, boxplots)
-save_boxplot_sample_sizes(db, benchmark.numeric, boxplots)
+save.boxplots(db, benchmark.numeric, boxplots)
+save.boxplot.sample.sizes(db, benchmark.numeric, boxplots)

@@ -2,7 +2,7 @@
 # Functions
 # --------------------
 
-get_correlations <- function(cols, rows, lower, upper) {
+get.correlations <- function(cols, rows, lower, upper) {
   # TODO compare final corr tables for top 30%
   m = length(rows)
   n = length(cols)
@@ -42,14 +42,14 @@ get_correlations <- function(cols, rows, lower, upper) {
 # --------------------
 
 # all subgrantees (pairwise complete)
-correlation = get_correlations(benchmark.numeric, benchmark.numeric, 1, 0)
+correlation = get.correlations(benchmark.numeric, benchmark.numeric, 1, 0)
 write.csv(correlation, file = "output/correlation.csv")
 correlation_n = count.pairwise(db[, benchmark.numeric])
 colnames(correlation_n) = get.labels(benchmark.numeric)
 rownames(correlation_n) = get.labels(benchmark.numeric)
 write.csv(correlation_n, file = "output/correlation-samples.csv")
 # top 30% subgrantees for indicators (pairwise complete)
-correlation_indicators = get_correlations(scores, benchmark.numeric, 0.3, 0)
+correlation_indicators = get.correlations(scores, benchmark.numeric, 0.3, 0)
 
 png(file = "output/correlation.png",
     bg = "transparent", width = 1000, height = 700, units = "px", pointsize = 10)
