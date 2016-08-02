@@ -1,10 +1,19 @@
-partnersData <- read.csv("partners/Partners-Table 1.csv")
-partnersProjects <- read.csv("partners/Projects-Table 1.csv")
-partnersNodes <- read.csv("partners/partners [Nodes].csv")
+# --------------------
+# Imports
+# --------------------
+
+partnersData <- read.csv("data/Partners-Table 1.csv")
+partnersProjects <- read.csv("data/Projects-Table 1.csv")
+partnersNodes <- read.csv("data/partners [Nodes].csv")
 colnames(partnersNodes)[colnames(partnersNodes)=="label"] <- "project"
 partners <- merge(partnersData, partnersNodes, all.x = TRUE)
 
-get_edges <- function(partners) {
+# --------------------
+# Functions
+# --------------------
+
+# Prepare list of edges based on the data
+get.edges <- function(partners) {
   partnerSplit <- split(partners, partners$partner)
   partnersEdges = data.frame(Source = integer(), Target = integer(), Label = character())
   for (p in names(partnerSplit)) {
@@ -26,10 +35,8 @@ get_edges <- function(partners) {
   partnersEdges
 }
 
-partnersEdges = get_edges(partners)
-write.csv(partnersEdges, file="partnersEdges.csv")
-
-get_connectivity <- function(partnersEdges) {
+# Compute degrees of connectivity
+get.connectivity <- function(partnersEdges) {
   acceleratorConnectivity = data.frame(Id = integer(), Phase1 = integer(), Phase2 = integer(), Phase3 = integer(), Phase1and2 = integer(), Phase1or2 = integer(), PhaseAll = integer())
   acceleratorsEdges = partnersEdges[which(partnersEdges['Phase Source'] == 3),]
   connectivitySplit <- split(acceleratorsEdges, acceleratorsEdges$Source)
@@ -59,10 +66,17 @@ get_connectivity <- function(partnersEdges) {
   acceleratorConnectivity
 }
 
-acceleratorConnectivity = get_connectivity(partnersEdges)
+# --------------------
+# Computations
+# --------------------
+
+partnersEdges = get.edges(partners)
+write.csv(partnersEdges, file="output/partnersEdges.csv")
+
+acceleratorConnectivity = get.connectivity(partnersEdges)
 colnames(partnersNodes) <- c('Id', 'Accelerator')
 acceleratorConnectivity = merge(acceleratorConnectivity, partnersNodes)
-write.csv(acceleratorConnectivity, file="acceleratorConnectivity.csv")
+write.csv(acceleratorConnectivity, file="output/acceleratorConnectivity.csv")
 acceleratorConnectivity = merge(acceleratorConnectivity, partnersProjects)
 
 toAdd = acceleratorConnectivity[c('Help', 'Phase1', 'Phase2', 'Phase3', 'Phase1and2', 'Phase1or2', 'PhaseAll')]
